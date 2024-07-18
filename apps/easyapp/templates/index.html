@@ -1,0 +1,29 @@
+<!DOCTYPE html> <!--문서유형-->
+<html land="ko">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Name</title>
+        <link 
+        rel = "stylesheet" 
+        href="{{ url_for('static',filename='style.css')}}"
+        />
+    </head>
+    
+    <!--웹페이지에 표시-->
+    <body>
+        <h1>Name: {{name}}</h1>
+        <!--
+        {% if name %} 
+        <h1>Name: {{name}} </h1>
+        {% else %}
+        <h1>Name:</h1>
+        {% endif %}-->
+        
+        <!--
+        {% for user in users %}-->
+        <!--li는 순서가 있는 목록에 사용-->
+        <!--<li><a href="{{user.url}}">{{user.username}}</a></li>
+        {% endfor %}-->
+    </body>
+</html>
+
