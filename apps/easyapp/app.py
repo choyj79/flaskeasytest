@@ -1,11 +1,41 @@
 from email_validator import validate_email, EmailNotValidError
 from flask import (Flask, render_template , url_for, current_app, 
                    g, request, redirect, flash) #모듈 import
+import logging
+import os #os모듈 추가히기
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_mail import Mail, Message  #Mail 클래시 import하기
 
 app = Flask(__name__)
 
 # SECRET_KEY를 추가한다
 app.config["SECRET_KEY"] = b"\xfd_@E\x17\xd8'\xf6e-\xff\xe4\xa2MC2"
+
+#로그레벨을 설정한다.
+app.logger.setLevel(logging.DEBUG)
+
+#리다이렉트를 중단하지 않도록 한다.
+app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
+#DebugToolbarExtension 에 애플리케이션을 설정
+toolbar = DebugToolbarExtension(app)
+
+# Mail 클래스의 컨피그를 추가한다
+# print('=========////',os.environ.get("MAIL_SERVER"))
+app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+app.config["MAIL_PORT"] = os.environ.get("MAIL_PORT")
+app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS")
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+# app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+
+# app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+# app.config['MAIL_PORT'] = 587
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USERNAME'] = 'jojju486@gmail.com'
+# app.config['MAIL_PASSWORD'] = 'stkm cgck saeq hlju'  # 앱 비밀번호 사용
+
+# flask-mail 확장을 등록한다
+mail = Mail(app)
 
 # URL과 실행하는 함수를 매핑한다
 @app.route("/")
@@ -54,6 +84,13 @@ g.connection = "connection"
 print(g.connection)
 # >> connection
 
+def send_email(to, subject, template, **kwargs):    
+    """메일을 송신하는 함수"""
+    msg = Message(subject, sender='jojju486@gmail.com', recipients=[to])
+    msg.body = render_template(template + ".txt", **kwargs)
+    msg.html = render_template(template + ".html", **kwargs)
+    mail.send(msg)
+
 with app.test_request_context("/users?updated=true"):
     # true가 출력된다
     print(request.args.get("updated"))
@@ -92,10 +129,27 @@ def contact_complete():
         if not is_valid:
             return redirect(url_for("contact"))
 
-        flash("문의해 주셔서 감사합니다.")
-        #이메일보내기(차후 구현)
-        
+        # 메일을 보낸다  
+            
+        send_email(
+            email,
+            "문의 감사합니다.",
+            "contact_mail",
+            username=username,
+            description=description,
+        )
+    
+        # 문의 완료 엔드포인트로 리다이렉트한다
+        flash("문의 내용은 메일로 송신했습니다. 문의해 주셔서 감사합니다.")
+   
         #contact 엔드포인트로 리다이렉트
         return redirect(url_for("contact_complete"))
     return render_template("contact_complete.html")
-        
+
+     
+app.logger.critical("fatal error")
+app.logger.error("error")
+app.logger.warning("warning")
+app.logger.info("info")
+app.logger.debug("debug")        
+
