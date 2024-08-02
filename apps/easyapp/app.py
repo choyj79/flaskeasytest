@@ -1,13 +1,12 @@
 from email_validator import validate_email, EmailNotValidError
 from flask import (Flask, render_template , url_for, current_app, 
-                   g, request, redirect, flash) #모듈 import
+                   g, request, redirect, flash, make_response, session) #모듈 import
 import logging
 import os #os모듈 추가히기
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_mail import Mail, Message  #Mail 클래시 import하기
 
 app = Flask(__name__)
-
 # SECRET_KEY를 추가한다
 app.config["SECRET_KEY"] = b"\xfd_@E\x17\xd8'\xf6e-\xff\xe4\xa2MC2"
 
@@ -26,7 +25,7 @@ app.config["MAIL_PORT"] = os.environ.get("MAIL_PORT")
 app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS")
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
-# app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
 
 # app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 # app.config['MAIL_PORT'] = 587
@@ -86,6 +85,7 @@ print(g.connection)
 
 def send_email(to, subject, template, **kwargs):    
     """메일을 송신하는 함수"""
+    print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! : {template}")
     msg = Message(subject, sender='jojju486@gmail.com', recipients=[to])
     msg.body = render_template(template + ".txt", **kwargs)
     msg.html = render_template(template + ".html", **kwargs)
@@ -97,7 +97,14 @@ with app.test_request_context("/users?updated=true"):
     
 @app.route("/contact")
 def contact():
-    return render_template("contact.html") #html파일 렌더링
+    #응답 객체 취득
+    response = make_response(render_template("contact.html"))
+    #쿠키 설정
+    response.set_cookie("flaskweb key","flaskweb vlaue")
+    #세션 설정
+    session["username"] = "cho"
+    #응답 오브젝트 반환
+    return response 
 
 @app.route("/contact/complete", methods=["GET", "POST"])
 def contact_complete():
@@ -129,8 +136,7 @@ def contact_complete():
         if not is_valid:
             return redirect(url_for("contact"))
 
-        # 메일을 보낸다  
-            
+        # 메일을 보낸다              
         send_email(
             email,
             "문의 감사합니다.",
@@ -151,5 +157,4 @@ app.logger.critical("fatal error")
 app.logger.error("error")
 app.logger.warning("warning")
 app.logger.info("info")
-app.logger.debug("debug")        
-
+app.logger.debug("debug")
