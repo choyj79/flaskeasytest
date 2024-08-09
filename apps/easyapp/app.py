@@ -8,7 +8,8 @@ from flask_mail import Mail, Message  #Mail 클래시 import하기
 
 app = Flask(__name__)
 # SECRET_KEY를 추가한다
-app.config["SECRET_KEY"] = b"\xfd_@E\x17\xd8'\xf6e-\xff\xe4\xa2MC2"
+# app.config["SECRET_KEY"] = b"\xfd_@E\x17\xd8'\xf6e-\xff\xe4\xa2MC2"
+app.config["SECRET_KEY"] = "2AZSMss3p5QPbcY2hBsJ"
 
 #로그레벨을 설정한다.
 app.logger.setLevel(logging.DEBUG)
