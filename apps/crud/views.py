@@ -68,3 +68,11 @@ def create_user():
         # 사용자의 일람 화면으로 리다이렉트한다
         return redirect(url_for("crud.users"))
     return render_template("crud/create.html", form=form)
+
+@crud.route('/users')
+def users():
+    #사용자의 일람을 취득
+    users = User.query.all()
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print(users)
+    return render_template('crud/index.html',users=users)
