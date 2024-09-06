@@ -3,24 +3,19 @@ from flask import Flask, Blueprint
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect #CSRFProtect import하기
+from apps.config import config
 
 #SQLAlchemy를 인스턴스화 하기
 db = SQLAlchemy()
 csrf = CSRFProtect() #객체생성하기
 
-def create_app():
+def create_app(config_key):
     
     # 플라스크 객체(인스턴스) 생성
     app = Flask(__name__)
     
     #앱의 config 설정
-    app.config.from_mapping(
-            SECRET_KEY = "2AZSMss3p5QPbcY2hBsJ",
-            SQLALCHEMY_DATABASE_URI =f"sqlite:///{Path(__file__).parent.parent/'local.sqlite'}", 
-            SQLALCHEMY_TRACK_MODIFICATIONS=False,
-            SQLALCHEMY_ECHO = True, #SQL을 콘솔 로그에 출력하는 설정
-            WTF_CSRF_SECRET_KEY = "AuwzyszU5sugKN7Ks6f", #키 랜덤한 값 생성
-            ) 
+    app.config.from_object(config[config_key])
     #앱과 연계하기
     csrf.init_app(app) 
     

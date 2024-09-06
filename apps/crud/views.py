@@ -76,3 +76,25 @@ def users():
     print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     print(users)
     return render_template('crud/index.html',users=users)
+#사용자 편집 화면 엔드포인트
+@crud.route('/user/<user_id>',methods=["GET","POST"])
+def edit_user(user_id):
+    form = UserForm() #객체 생성하기
+    user = User.query.filter_by(id=user_id).first() #사용자 취득
+    #form으로부터 제출된 사용자를 갱신하여 일람 화면으로 리다이렉트
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        user.password = form.password.data
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for("crud.users"))
+    return render_template('crud/edit.html',user=user, form=form)
+
+#사용자 삭제 화면
+@crud.route('/user/<user_id>/delete',methods=["POST"])
+def delete_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('crud.users'))
