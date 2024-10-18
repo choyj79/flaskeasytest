@@ -2,7 +2,7 @@ from apps.app import db
 from apps.auth.forms import SignUpForm, LoginForm
 from apps.crud.models import User 
 from flask import Blueprint,render_template, flash, redirect, request, url_for
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 
 # Blueprint로 crud 앱을 생성한다
@@ -67,3 +67,8 @@ def login():
         flash("메일 주소 또는 비밀번호가 일치하지 않습니다.")
         
     return render_template("auth/login.html",form=form)
+
+@auth.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
